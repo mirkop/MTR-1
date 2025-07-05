@@ -10,7 +10,7 @@ esphome:
     name: "ApolloAutomation.MTR-1"
     version: "${version}"
 
-  min_version: 2024.6.0
+  min_version: 2024.6.4
   on_boot:
     priority: -10
     then:
@@ -30,9 +30,15 @@ ota:
 
 wifi:
   power_save_mode: none
+  # Enable station mode for connecting to existing networks
+  # These will be populated via captive portal or improv
+  networks: []
   ap:
     ssid: "Apollo MTR1 Hotspot"
-    
+
+logger:
+  level: INFO
+  
 web_server:
   port: 80
 

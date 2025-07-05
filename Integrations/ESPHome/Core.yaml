@@ -1,3 +1,7 @@
+# Apollo MTR-1 Core Configuration
+# This file contains the shared configuration for all MTR-1 variants
+# Temperature offsets should be calibrated per device in production
+
 substitutions:
   name: apollo-mtr-1
   version: "25.4.11.1"
@@ -7,6 +11,15 @@ esp32:
   board: esp32-c3-devkitm-1
   framework:
     type: esp-idf
+
+# Enable watchdog for system stability
+watchdog:
+
+# Enable safe mode for recovery
+safe_mode:
+  disabled: false
+  reboot_timeout: 10min
+  num_attempts: 5
 
 captive_portal:
 
@@ -62,6 +75,8 @@ i2c:
   sda: GPIO1
   scl: GPIO0
   id: bus_a
+  scan: true  # Enable I2C device scanning for diagnostics
+  frequency: 100kHz  # Explicit frequency for reliability
 
 uart:
   id: uart_bus
@@ -120,7 +135,7 @@ number:
     name: DPS310 Temperature Offset
     id: dps310_temperature_offset
     restore_value: true
-    initial_value: 18.86
+    initial_value: 18.86  # Calibrated offset - adjust per device
     min_value: -70.0
     max_value: 70.0
     entity_category: "CONFIG"
@@ -133,7 +148,7 @@ number:
     name: SCD40 Temperature Offset
     id: scd40_temperature_offset
     restore_value: true
-    initial_value: 18.86
+    initial_value: 18.86  # Calibrated offset - adjust per device
     min_value: -70.0
     max_value: 70.0
     entity_category: "CONFIG"
@@ -217,18 +232,22 @@ sensor:
     co2:
       name: "CO2"
       id: "co2"
+      filters:
+        - timeout: 120s  # Timeout after 2 minutes
     temperature:
       name: "SCD40 Temperature"
       id: scd40_temperature
       disabled_by_default: true
       filters:
         - lambda: return x - id(scd40_temperature_offset).state;
+        - timeout: 120s
     humidity:
       name: "SCD40 Humidity"
       id: scd40_humidity
       disabled_by_default: true
       filters:
         - lambda: return x - id(scd40_humidity_offset).state;
+        - timeout: 120s
     automatic_self_calibration: false
     update_interval: 60s
     measurement_mode: "periodic"
